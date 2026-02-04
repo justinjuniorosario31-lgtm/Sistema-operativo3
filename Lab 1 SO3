@@ -1,0 +1,64 @@
+Comandos usados practica 1
+
+============================================
+
+==================Comandos usados practica 2=======================
+
+lab 2 adrian ip estati
+
+
+
+nmcli connection modify "nombre_de_tu_conexion" \
+ipv4.method manual \
+ipv4.addresses 10.0.0.60/24 \
+ipv4.gateway 10.0.0.1
+
+
+reiniciamos   
+nmcli connection up "nombre_de_tu_conexion"
+
+
+
+ip dhcp 
+nmcli connection modify "nombre_de_tu_conexion" ipv4.method auto
+sudo nmcli connection up "nombre_de_tu_conexion"
+
+dns 
+nmcli connection modify "nombre_de_tu_conexion" ipv4.dns "8.8.8.8 8.8.4.4"
+sudo nmcli connection up "nombre_de_tu_conexion".
+nmcli dev show | grep DNS
+
+
+
+
+
+
+==============================Comandos usados practica 3============================================
+
+useradd jrosario
+usermod -aG wheel jrosario
+groups jrosario
+groupadd guest 
+useradd invitado 
+usermod -aG guest invitado 
+groups invitado
+
+userdel invitado 
+groupdel guest 
+
+
+=====================================Comandos usados practica 4==========================================
+
+mkdir materia
+cd materia
+touch estudiante.txt
+vi estudiante.txt
+ls -l estudiante.txt  
+chmod 700 estudiante.txt 
+ls -l estudiante.txt
+chmod 070 estudiante.txt 
+ls -l estudiante.txt 
+cd .. 
+mkdir materia2 
+cp materia/estudiante.txt materia2/  
+rm -r materia  
