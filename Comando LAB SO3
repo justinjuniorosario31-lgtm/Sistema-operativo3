@@ -1,0 +1,61 @@
+Comando LAB 2 practica 1
+
+sudo dnf update -y     //actualizamos los repositorios 
+
+dnf repolist           //enumeramos los repositorios 
+
+dnf repolist all       // Lo mismo pero mejor 
+
+dnf search bashtop     // buscamos en el cache la herramienta
+
+sudo dnf install -y make gcc
+sudo dnf install -y btop
+btop
+
+sudo dnf install -y    // Instalamos la Dependecia 
+
+git clone             // clonamos el repositorio 
+
+sudo make install     // Intalamos la Herramienta 
+
+sudo make uninstall    // desintalamos la herramienta
+
+rm -rf                // removemos el directorio 
+
+sudo dnf autoremove -y // Eliminamos las dependencia que ya no se usan 
+
+
+
+=========================================
+Comando LAB 2 practica 2
+
+
+sudo crontab -e
+0 23 * * * dnf upgrade -y && dnf autoremove -y
+0 3 * * 0 /sbin/reboot
+sudo dnf install -y at
+sudo systemctl enable --now atd
+ls /tmp
+at now + 1 minute
+rm -rf /tmp/*
+ls /tmp
+
+
+================================================
+
+Comando LAB 2 practica 3
+
+
+lsblk                                 //verificamos la partición 
+sudo fdisk /dev/sdb                  // creamos la partición 
+sudo mkfs.ext4 /dev/sdb1             // formatemaos la partición en ext4 
+cd Escritorio                         //accedemos al escritorio 
+mkdir SO3adrian                       //creamos una carpeta 
+
+
+mount /dev/sdb1 /home/jrosario/Escritorio/SO3adrian 
+cd SO3adrian 
+vi AdrianAlcantara.txt
+
+umount  dev/sdb1
+mount /dev/sdb1 /mnt 
