@@ -1,0 +1,64 @@
+comando practicas 1
+
+sudo nano /etc/default/grub       // aqui buscaremos el cambio de inicio 
+
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg  //aquí guardamos la configuración 
+
+sudo reboot         // Reiniciamos 
+
+rw init=/bin/bash    // entramos en modo emergencia 
+
+mout -o remount,rw/
+
+passwd root     //cambiamos la contrasena 
+
+passwd jrosario   //cambiamos la contraseña del ususario 
+
+sync    //obliga a pasar los datos de la memoria ram al disco duro 
+
+touch /.autorelabel
+
+exec /sbin/ init
+
+
+
+
+
+comando practica 2  
+
+#!/bin/bash
+FECHA=$(date +"%d-%m-%Y%H%M")
+tar 'czvf /home/$(whoami)/backup_$FECHA.tar.gz /home/$(whoami)
+sudo chmod 777 
+
+
+part 2
+
+sudo nano red.sh
+read -p "Ingrese el nombre del archivo: (sin extension) "nombre
+cd Escritorio 
+ipconfig >> "$nombre.txt"
+sudo chmod 777 red.sh
+./red.sh
+
+
+
+
+
+comando practica 3
+
+
+sudo systemctl enable sshd          //en fedora 
+sudo systemctl status sshd        //en fedora 
+ssh jrosario@10.0.0.15          //en windows
+
+
+ssh-keygen -t rsa -b 4096           //en windows
+scp (direccion de archivo)  jrosario@10.0.0.15: /home/jrosario/       //en windows\
+
+mkdir -p ~/.ssh
+cat ~/id_rsa.pub
+
+cd .shj
+nano authorized_keys
+
