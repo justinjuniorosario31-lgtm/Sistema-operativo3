@@ -1,0 +1,124 @@
+=============comando de la practica 1 LAB 4======================= 
+
+sudo dnf install httpd -y
+
+sudo systemctl enable httpd
+sudo systemctl start httpd
+sudo systemctl status httpd
+
+sudo mkdir -p /var/www/holamj/html
+sudo nano /var/www/holamj/html/index.html
+
+<html>
+<head><title>Hola</title></head>
+<body>
+<h1>Hola Mundo</h1>
+</body>
+</html>
+
+
+sudo nano /etc/httpd/conf.d/holamj.conf
+
+<VirtualHost *:80>
+    DocumentRoot "/var/www/hola"
+    ServerName localhost
+</VirtualHost>
+
+sudo nano /etc/httpd/conf/httpd.conf   //verificamos 
+
+
+sudo systemctl restart httpd  
+http://ip del servidor
+
+ 
+
+
+sudo mkdir -p /var/www/datos/html
+sudo nano /var/www/datos/html/index.html
+
+<html>
+<head><title>Datos</title></head>
+<body>
+<h1>Justin Junior Rosario</h1>
+<h2>Matricula: 2023-XXXX</h2>
+<h3>Materia: Administracion de Servidores</h3>
+</body>
+</html>
+
+
+sudo nano /etc/httpd/conf.d/datos.conf
+
+<VirtualHost *:8080>
+    DocumentRoot "/var/www/datos"
+    ServerName localhost
+</VirtualHost>
+
+sudo nano /etc/httpd/conf/httpd.conf
+sudo systemctl restart httpd
+
+
+=====================Comando de la 2 practica LAB 4================================
+
+sudo dnf install postfix* -y && sudo dnf install mail* -y
+
+cd //etc//postfix
+ls
+
+vi main.cf
+
+myhostname = Justin.ro.com
+mydomain = Justin.rod.com
+
+
+mynetworks = y ponemos nuestra ip
+
+
+relayhost = [smtp.gmail.com]:587no // em las lineas de relayhost
+
+
+smtp_user_tls = yes
+smtp_sasl_auth_enable = yes
+smtp_tls_security_level = encrypt
+smtp_sals_security_options = 
+smtp_sals_password_maps = hash:/etc/postfix/sasl_passwd
+
+
+vi sasl_passwd
+[smtp.gmail.com]:587 justinrosarioceleno@gmail.com:muic ihwe dfdr xiym
+postmap sasl_passwd
+chmod 777 sasl_passwd
+
+
+systemctl enable postfix
+systemctl restart postfix
+systemctl status postfix
+
+vi correo.txt
+
+mail -s "prueba de correo" justinjuniorosario31@.com << correo.txt 
+mail -s "MambruSeFueALaGuerra" os3conadrian@gmail.com << correo.txt 
+
+
+
+================ comando de la practica 3 lab 4 =====================
+
+sudo dnf install cups cups-pdf ghostscript -y
+
+sudo systemctl enable cups
+sudo systemctl start cups
+sudo systemctl status cups
+
+sudo firewall-cmd --permanent --add-service=ipp
+sudo firewall-cmd --permanent --add-service=ipp-client
+sudo firewall-cmd --permanent --add-service=mdns
+sudo firewall-cmd --reload
+
+sudo nano /etc/cups/cupsd.conf
+
+Remplazar 
+listen localhost: 631 = port 631
+
+Allow all
+sudo systemctl restart cups
+
+http://IP_DEL_SERVIDOR:631
