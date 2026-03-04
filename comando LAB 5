@@ -1,0 +1,224 @@
+EXP primera practica 
+
+sudo dnf install rsync* -y  //en las dos maquina 
+
+cd ./Escritorio/
+mkdir tarea 
+cd tarea/
+
+touch prueba2_{001..100}.txt
+
+ssh-keygen -t rsa -b 2048
+
+ssh-copy-id jrosario@nuestra ip 
+
+shh jrosario@nuestra ip
+ 
+rsync -avz ./Escritorio/tarea jrosario@nuestraip:/home/jrosario/Escritorio
+
+================[en la otra maquina]=========================
+
+cd Escritorio/
+ls
+ls prueba
+
+=============[de vuelta en la ota maquina ]==========
+nano automatico.sh
+rsync -avz /home/jrosario/Escritorio/tarea jrosario@nuestraip:/home/jrosario/Escritorio
+
+
+cd tarea/
+ls
+touch prueba_101.txt
+ls
+cd ..
+
+bash automatico.sh
+
+crontab -e
+*/1 * * * * rsync -avz /home/jrosario/Escritorio/tarea jrosario@nuestraip:/home/jrosario/Escritorio
+
+cd tarea
+ls
+touch prueba_102.txt
+
+
+=====================================================================practica 2=========================================================================
+
+-exp segundo ejercisio 
+
+-sudo dnf install pacemaker* pcs corosync* -y  //en las dos maquinas 
+
+-sudo systemctl enable pcsd --now pcsd      //en las dos maquinas 
+
+-ifconfig      //para ver las ip de las 2 
+
+-hostnamectl set-hostname nodo1      //para la principal
+-hostnamectl set-hostname nodo2     //para la secundaria 
+
+
+-nano /etc/hosts       //en las dos le ponemos 
+-10.0.0.15 nodo1
+-10.0.0.20 nodo2
+
+-sudo passwd hacluster         //cambiamos la contrasena en los dos, poniendo la mismas contrasena en las dos maquina 
+
+
+-pcs host auth 10.0.0.15 10.0.0.20 -u hacluster -p 1   //autentificamos los nodos
+-sudo pcs cluster setup mi_cluster 10.0.0.15 10.0.0.20  //aqui creamos los cluster
+-pcs cluster start --all   //iniciamos los cluster
+
+-pcs property set stonith-enable=false   //aqui desabilitamos esta reglaa
+-pcs property set no-quorun-policy=ignore
+-pcs resource create IPvirtual ocf:heartbeat:IPaddr2 ip=10.0.0.50 cidr_netmask=24 nic=enp0s3 op monitor interval=30s
+
+pcs status
+
+systemctl enable pacemaker
+systemctl enable corosync
+
+ip a // para validad 
+
+systemctl stop pacemaker // en la principal 
+
+
+============en mi maquina==============
+ping -t 10.0.0.50
+
+
+==============================================
+systemctl start pacemaker // en la principal 
+
+systemctl stop pacemaker // en la segunda 
+
+
+
+=========================================================================================practica 3=========================================================
+
+sudo dnf install httpd* keepalived*-y   //en los 2 
+
+
+mkdir -p /var/www/server1/html
+
+nano /var/www/server1/html/index.html
+
+
+<html>
+<head><title>Hola</title></head>
+<body>
+<h1>Servidor 1</h1>
+</body>
+</html>
+
+
+nano /etc/httpd/conf.d/server1.conf
+
+<VirtualHost *:80>
+    DocumentRoot "/var/www/server1/html"
+    ServerName localhost
+</VirtualHost>
+
+sudo systemctl enable httpd
+sudo systemctl start httpd
+sudo systemctl status httpd
+
+nano /etc/httpd/conf/httpd.conf
+systemctl restart httpd
+
+ =================ahora ponenos el keepalived==============
+
+nano /etc/keepalived/keepalived.conf 
+
+vrrp_instance VI_1 {
+    state MASTER
+    interface enp0s3
+    virtual_router_id 51
+    priority 100
+    advert_int 1
+
+    authentication {
+        auth_type PASS
+        auth_pass 1234
+    }
+
+    virtual_ipaddress {
+        10.0.0.100/24
+    }
+}
+
+
+systemctl enable keepalived.service
+systemctl restart keepalived
+setenforce 0
+
+
+sudo firewall-cmd --permanent --add-port=80/tcp --zone=public
+sudo firewall-cmd --permanent --add-service=http --zone=public
+sudo firewall-cmd --permanent --add-service=https --zone=public
+sudo firewall-cmd --permanent --add-protocol=vrrp --zone=public
+sudo firewall-cmd --reload
+
+
+==============================servidor 2==============================
+
+mkdir -p /var/www/server2/html
+nano /var/www/server2/html/index.html
+
+
+
+<html>
+<head><title>Hola</title></head>
+<body>
+<h1>Servidor 2</h1>
+</body>
+</html>
+
+nano /etc/httpd/conf.d/server2.conf
+
+<VirtualHost *:80>
+    DocumentRoot "/var/www/server2/html"
+    ServerName localhost
+</VirtualHost>
+
+systemctl enable httpd
+systemctl restart httpd
+
+
+
+ =================ahora ponenos el keepalived==============
+
+nano /etc/keepalived/keepalived.conf 
+
+vrrp_instance VI_1 {
+    state BACKUP
+    interface enp0s3
+    virtual_router_id 51
+    priority 50
+    advert_int 1
+
+    authentication {
+        auth_type PASS
+        auth_pass 1234
+    }
+
+    virtual_ipaddress {
+       10.0.0.100/24
+    }
+}
+
+
+
+systemctl enable keepalived.service
+systemctl restart keepalived
+setenforce 0
+
+sudo firewall-cmd --permanent --add-port=80/tcp --zone=public
+sudo firewall-cmd --permanent --add-service=http --zone=public
+sudo firewall-cmd --permanent --add-service=https --zone=public
+sudo firewall-cmd --permanent --add-protocol=vrrp --zone=public
+sudo firewall-cmd --reload
+
+systemctl stop firewalld             // en las dos 
+systemctl disable firewalld      //en las dos 
+
+systemctl stop keepalived.service
