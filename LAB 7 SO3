@@ -1,0 +1,304 @@
+Pracica  1
+
+sudo dnf install -y nfs-utils  //en las dos 
+sudo systemctl enable enable nfs-server    //en las dos 
+sudo systemctl enable start nfs-server   //en las dos 
+
+===================en la primera maquina=======================
+cd Escritorio/
+mkdir -p os3
+ls
+cd os3/
+touch Adrian{1..100}.txt
+ls
+
+
+cd ..
+sudo chown -R nobody:nobody OS3/
+sudo chmod -R 777 os3/
+sudo nano /etc/exports
+/home/carlos/Escritorio/os3 10.0.0.0/24(ro,sync,no_subtree_check)
+sudo exportfs -rav
+sudo exportfs -v
+
+sudo firewall-cmd --permanent --add-service=nfs 
+sudo firewall-cmd –reload
+sudo systemctl restart nfs-utils
+ 
+==========================en la segunda======================
+
+cd Escritorio/
+mkdir -p so3
+sudo mount -t nfs 10.0.0.60:/home/jrosario/Escritorio/os3 /home/jrosario/Escritorio/so3
+sudo nano /etc/fstab
+10.0.0.60:/home/jrosario/Escritorio/OS3 /home/jrosario/Escritorio/SO3 nfs defaults 0 0
+sudo reboot
+ls ~/Escritorio/SO3
+
+
+===========================================================================================
+Pracica 2
+
+sudo dnf install -y samba* 
+sudo systemctl enable enable smb nmb
+sudo systemctl enable start smb nmb
+sudo systemctl enable status smb nmb
+sudo firewall-cmd --permanent --add-service=samba 
+sudo firewall-cmd –reload
+sudo mkdir -p /samba/compartir
+cd /samba/compartir
+touch prueba{1..100}.txt
+cd ..
+cd
+chmod -R 777 /samba/compartir/
+chown -R nobody:nobody /samba/compartir
+sudo setsebool -P samba_export_all_rw on
+useradd zamba
+smbpasswd -a zamba
+5
+5
+
+sudo nano /etc/samba/smb.conf
+//en el fondo ponemos estos 
+[compartir]
+   path = /samba/compartir
+   browseable = yes
+   writeable = yes
+   valid users = zamba
+   create mask = 0777
+   directory mask = 0777
+   guest ok = yes
+
+
+sudo systemctl restart smb nmb
+
+
+===============================en windows=======================
+\\10.0.0.60
+Introduce el usuario zamba y su contraseña cuando se te solicite.
+//el zumzum de la carabela
+
+
+
+
+=========================================practica 3=======================================
+
+
+no lo hice en su momento pero aqui les traigo su samba con mucho cariño :3
+
+SAMBA DEFINITIVO
+
+1. primero entra a la red de windows y ponla en privada 
+2. abre los icmp del firewall (file and printer sharing)
+3. verifica que se hagan ping 
+4. verifica que esten en modo puente obviamente 
+
+
+#_______________________________FEDORA__________________________________#
+#ACTUALIZAR EL EQUIPO
+sudo dnf update -y
+
+#INSTALAR LO NECESARIO 
+sudo dnf install -y samba samba-client samba-dc \
+                    krb5-workstation bind-utils \
+                    samba-winbind samba-winbind-clients
+
+
+#VERIFICAR VERSION
+samba -V
+
+#DETENER SERVICIOS QUE PUEDEN HACER ERROR
+sudo systemctl stop smb nmb winbind systemd-resolved
+sudo systemctl disable smb nmb winbind systemd-resolved
+sudo systemctl status smb nmb winbind systemd-resolved
+
+#CONFIGURAR HOSTNAME Y DNS
+sudo hostnamectl set-hostname dc1.so3.inet
+hostname
+# Debe mostrar: dc1.so3.inet
+
+.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+ 
+10.0.0.60       dc1.so3.inet dc1
+10.0.0.60       so3.inet
+
+.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+
+#BORRAR CONFIGURACION EXISTENTE PARA EVITAR BOBO 
+sudo rm /etc/resolv.conf
+
+.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+sudo nano /etc/resolv.conf
+nameserver 127.0.0.1
+nameserver 8.8.8.8
+search so3.inet
+.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+
+#QUE NO SE SOBREESCRIBA
+sudo chattr +i /etc/resolv.conf
+
+#HACER BACKUP DE CONFIGURACION POR SI ACASO
+sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.backup 2>/dev/null
+
+#BORRAR BASES DE DATOS
+sudo rm -rf /var/lib/samba/*
+sudo rm -rf /var/cache/samba/*
+sudo rm -rf /run/samba/*
+
+
+#PROVISIONAR EL DOMINIO
+("TIENES QUE LLENARLO TAL CUAL LO PONE AQUI")
+sudo samba-tool domain provision --use-rfc2307 --interactive
+
+Realm [SO3.INET]: SO3.INET 
+Domain [SO3]: SO3 
+Server Role (dc, member, standalone) [dc]: dc 
+DNS backend (SAMBA_INTERNAL, BIND9_FLATFILE, BIND9_DLZ, NONE) [SAMBA_INTERNAL]: SAMBA_INTERNAL 
+DNS forwarder IP address (write 'none' to skip) []: 8.8.8.8 
+Administrator password: Admin123! 
+Retype password: Admin123! 
+
+.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+
+#COPIAR CONFIGURACION DE KERBEROS
+sudo cp /var/lib/samba/private/krb5.conf /etc/krb5.conf
+
+#DESACTIVAR FIREWALL PARA QUE NO GENERE PROBLEMA
+sudo systemctl stop firewalld
+sudo systemctl disable firewalld
+sudo systemctl status firewalld
+
+# Debe decir: inactive (dead)
+
+#INICIAR SAMBA EN MODO INTERACTIVO
+("UNA VEZ HAGAS ESTO, TIENES QUE ABRIR OTRA TERMINAL Y SOLTAR ESTA PRIMERA EN BANDA")
+
+
+(antes de limpia el puerto 23)
+
+sudo killall -9 systemd-resolved
+sudo systemctl stop systemd-resolved
+sudo systemctl disable systemd-resolved
+sudo systemctl mask systemd-resolved
+sudo killall -9 systemd-resolved
+sudo kill -9 21066
+sudo killall -9 samba samba-ad-dc smbd nmbd winbind
+sudo rm -f /run/samba/samba.pid
+sudo rm -f /run/samba.pid
+sudo ss -tulpn | grep :53  --verificacion
+
+sudo samba -i
+
+
+#VERIFICAR QUE TODO ESTA CORRECTO
+ps aux | grep samba | grep -v grep
+
+host -t A so3.inet 127.0.0.1
+
+#Debe responder: so3.inet has address 10.0.0.55
+
+#Verificar recursos compartidos
+
+sudo smbclient -L localhost -U administrator
+
+Password: Admin123!
+#Debes ver: NETLOGON, SYSVOL, IPC$
+
+("TE VA A SALIR UNA ADVERTENCIA DE ALGO PARECIDO A SAMBA1 DISABLED, NO LE PARE A ESO")
+
+sudo kinit administrator@SO3.INET
+
+#Password: Admin123!
+
+sudo klist
+#Debe mostrar ticket de Kerberos
+
+
+#____________________AHORA TOCA CREAR EL USUARIO LANEGRACUBANA_________________#
+
+sudo useradd -m lanegracubana
+
+sudo passwd lanegracubana
+
+#Ingresa: 
+#Confirma: 
+
+#Crear usuario en AD
+
+sudo samba-tool user create lanegracubana Jesusname+1826
+
+#Agregar al grupo Domain Admins (para poder unir equipos)
+
+sudo samba-tool group addmembers "Domain Admins" lanegracubana
+
+
+# Verificar
+sudo samba-tool user list | grep lanegracubana
+sudo samba-tool group listmembers "Domain Admins"
+
+#___________________________WINDOWS________________________________#
+
+
+#Configurar DNS en Windows
+
+Abre Configuración (Windows + I)
+Red e Internet
+Ethernet (o Wi-Fi)
+Click en Cambiar opciones del adaptador
+Click derecho en tu conexión → Propiedades
+Selecciona Protocolo de Internet versión 4 (TCP/IPv4) → Propiedades
+Configura:
+
+#Usar las siguientes direcciones de servidor DNS:
+DNS preferido: 10.0.0.55 (la IP del servidor Linux)
+DNS alternativo: (déjalo vacío)
+
+
+#DESMARCA la casilla de Protocolo de Internet versión 6 (TCP/IPv6)
+Click Aceptar → Aceptar
+
+
+#ABRE EL CMD O POWERSHELL COMO ADMINISTRADOR
+
+# Limpiar caché DNS
+
+ipconfig /flushdns
+
+# Verificar conectividad
+
+ping 10.0.0.55
+ping so3.inet
+
+# Verificar puertos críticos (PowerShell) powershell
+
+Test-NetConnection -ComputerName 10.0.0.55 -Port 389
+Test-NetConnection -ComputerName 10.0.0.55 -Port 88
+Test-NetConnection -ComputerName 10.0.0.55 -Port 445
+exit
+
+#UNIR AL DOMINIO
+
+Click derecho en Este equipo → Propiedades
+Click en Configuración avanzada del sistema
+Pestaña Nombre de equipo
+Click en Cambiar...
+Selecciona Dominio
+Escribe: so3.inet
+Click Aceptar
+
+#TE DEBE DE SALIR LA VENTANA DE AUTENTICACION DONDE PONDRAS
+
+nombre: lanegracubana
+contraseña: 
+
+#SI NO PUSISTE TU HUEVO TE DIRA QUE UNIDO EXITOSAMENTE AL DOMINIO "so3.inet"
+#LUEGO TE PEDIRA REINICIAR Y TU COMO NIÑO BUENO, LO HACES
+
+#EN EL PANEL DE LOGIN LE DAS A "OTHER USER" ABAJO A LA IZQUIERDA 
+#E INGRESAS
+
+username: lanegracubana
+password: Jesusname+1826
+
+#("FELICIDADES YA TIENES TU DOMINIO EN SAMBA DISFRUTALO")#
+
