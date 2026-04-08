@@ -1,0 +1,247 @@
+VIDEO 1 WEBMIN
+
+sudo nano /etc/yum.repos.d/webmin.repo
+
+=================================================================================================
+
+[Webmin]
+name=Webmin Distribution Neutral
+baseurl=http://download.webmin.com/download/yum
+enabled=1
+gpgcheck=1
+gpgkey=http://www.webmin.com/jcameron-key.asc
+
+=================================================================================================
+sudo dnf install -y webmin
+sudo systemctl enable webmin
+sudo systemctl start wembin
+sudo systemctl status webmin
+
+
+https://localhost:10000
+https://127.0.0.1:10000
+https://10.0.0.70:10000
+
+Webmin te permite administrar el hardware y el software de tu sistema Linux, aplicaciones nativas y de terceros
+
+=======en webmin====
+sisytem
+usesr and groups
+create new user\
+=====en linux====
+cd ..
+ls
+======en webmin====
+click en nuestro usuario
+delete
+\
+\
+\
+\
+bootup and shutdowmn
+bajamos hasta sshd (service)
+aqui lo detendremos para visualizarlo en linux
+=====en Linux==== 
+ejecutamos un systemctl status sshd
+
+'\
+\
+========en webmin======
+
+en system le damos click en software packages
+click en install a new package
+y instalamos htop
+
+===========en webmin========
+click en software packages update
+seleccionamos cualquiera y los actualizamos
+
+========en webmin============
+buscamos  file manager
+creamos un archivo y un directorio
+
+======en webmin==============
+le damos click en system
+click en running processes
+
+*******************************************************************************************************************************
+
+VIDEO 3 ANSIBLE
+(tanto para windows como para Linux, hacer todo en permisos de administrador)
+
+-Fedora:
+sudo dnf install -y ansible sshpass python3-pip
+ansible --version
+
+
+-Fedora: 
+sudo adduser ansible
+sudo passwd ansible
+sudo usermod -aG wheel ansible
+sudo visudo
+
+=================================================================================================
+al fondo agregar:
+
+ansible ALL=(ALL) NOPASSWD:ALL
+=================================================================================================
+
+
+-Ubuntu:
+sudo adduser ansible
+sudo passwd ansible
+sudo usermod -aG sudo ansible
+sudo visudo
+
+=================================================================================================
+al fondo agregar:
+
+ansible ALL=(ALL) NOPASSWD:ALL
+=================================================================================================
+
+
+-Windows:
+net user ansible 1 /add
+net localgroup Administrators ansible /add
+
+-Fedora: 
+su - ansible
+ssh-keygen -t rsa -b 4096 -C "ansible@controller"
+ssh-copy-id ansible@164.92.66.141
+
+exit
+
+ssh ansible@164.92.66.141
+
+
+-Windows: 
+winrm quickconfig
+Y
+Set-Item -Path WSMan:\localhost\Service\Auth\Basic -Value $true
+Set-Item -Path WSMan:\localhost\Service\AllowUnencrypted -Value $true
+
+New-NetFirewallRule -Name "WinRM_TCP_IN"  -DisplayName "WinRM TCP Entrada"  -Protocol TCP -LocalPort 5985 -Direction Inbound  -Action Allow
+New-NetFirewallRule -Name "WinRM_UDP_IN"  -DisplayName "WinRM UDP Entrada"  -Protocol UDP -LocalPort 5985 -Direction Inbound  -Action Allow
+New-NetFirewallRule -Name "WinRM_TCP_OUT" -DisplayName "WinRM TCP Salida"   -Protocol TCP -LocalPort 5985 -Direction Outbound -Action Allow
+New-NetFirewallRule -Name "WinRM_UDP_OUT" -DisplayName "WinRM UDP Salida"   -Protocol UDP -LocalPort 5985 -Direction Outbound -Action Allow
+
+- Fedora:
+
+nano /etc/ansible/hosts
+
+=================================================================================================
+al fondo agregar
+
+[linux]
+164.92.66.141 ansible_user=ansible ansible_connection=ssh
+
+[win]
+10.0.0.81 ansible_user=ansible ansible_password=1 ansible_connection=winrm ansible_winrm_transport=basic ansible_port=5985
+
+=================================================================================================
+
+firewall-cmd --permanent --add-port=5985/tcp
+firewall-cmd --permanent --add-port=5985/udp
+firewall-cmd --reload
+
+
+
+- Fedora:
+ansible linux -m ping -i /etc/ansible/hosts
+ansible win -m win_ping -i /etc/ansible/hosts
+
+
+***********************************************************************************************************************************************************
+VIDEO 4 AD HOC 
+
+Probar que ansible funciona:
+- Fedora:
+
+ansible linux -m ping -i /etc/ansible/hosts
+ansible win -m win_ping -i /etc/ansible/hosts
+
+COPIAR ARCHIVO DEL ESCRITORIO A LA CARPETA DE DOCUMENTOS:
+ansible win -m win_copy -a 'src=C:\\\\Users\\\\ansible\\\\Desktop\\\\Justin.txt dest=C:\\\\Users\\\\ansible\\\\Documents\\\\Justin.txt remote_src=true' -i /etc/ansible/hosts
+
+
+REINICIAR WINDOWS:
+ansible win -m win_reboot -i /etc/ansible/hosts
+
++*+*+*+***++*+**+**+*+*+*+*+********************+*******************************************+******************************************
+
+VIDEO 5 PLAYBOOK
+
+Probar que ansible funciona:
+- Fedora:
+
+ansible linux -m ping -i /etc/ansible/hosts
+ansible win -m win_ping -i /etc/ansible/hosts
+
+INSTALAR NOTEPAD++
+
+nano playbook-notepad.yml
+
+===========================================================================================================================================
+agregar adentro:
+
+- name: Instalar Notepad++ en Windows
+  hosts: win
+  gather_facts: false
+  tasks:
+    - name: Descargar instalador
+      win_get_url:
+        url: https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.5.8/npp.8.5.8.Installer.x64.exe
+        dest: C:\Users\ansible\Downloads\npp_installer.exe
+
+    - name: Instalar Notepad++
+      win_package:
+        path: C:\Users\ansible\Downloads\npp_installer.exe
+        arguments: /S
+        product_id: Notepad++
+        state: present
+==============================================================================================================================================
+
+ansible-playbook playbook-notepad.yml -i /etc/ansible/hosts
+
+================================================================================================================================================
+
+INSTALAR NGINX EN MAQUINA EN LA NUBE E INICIARLO
+
+nano playbook-nginx.yml
+
+- name: instalar nginx y cambiarlo de puerto
+  hosts: linux
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Actualizar lista de paquetes
+      apt: 
+       update_cache: yes
+
+    - name: instalar nginx
+      apt: 
+       name: nginx
+       state: present
+
+    - name: cambiar de puerto
+      replace:
+        path: /etc/nginx/sites-available/default
+        regexp: 'listen 80 default_server;'
+        replace: 'listen 8080 default_server;'
+
+    - name: cambiar de puerto ipv6
+      replace:
+        path: /etc/nginx/sites-available/default
+        regexp: 'listen \[::\]:80 default_server;'
+        replace: 'listen [::]:8080 default_server;'
+
+    - name: iniciar servicio nginx
+      service: 
+        name: nginx
+        state: started
+        enabled: true
+
+
+ansible-playbook playbook-nginx.yml -i /etc/ansible/hosts
+=================================================================================================================================================
+
