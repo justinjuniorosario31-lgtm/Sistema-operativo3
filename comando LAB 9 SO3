@@ -297,3 +297,29 @@ nano playbook-nginx.yml
 ansible-playbook playbook-nginx.yml -i /etc/ansible/hosts
 =================================================================================================================================================
 
+
+CREEACION DE USUARIO 
+
+nano playbook-usuario.yml
+
+---
+- name: Practica C - Configuración de VM Fedora
+  hosts: linux
+  become: yes
+
+  tasks:
+    - name: Actualizar repositorios y crear usuario adrian123
+      user:
+        name: adrian123
+        password: "{{ 'adrian123' | password_hash('sha512') }}"
+        groups: wheel  # CAMBIO: En Fedora se usa 'wheel'
+        append: yes
+        shell: /bin/bash
+
+    - name: Instalar Bashtop
+      dnf:            # CAMBIO: En Fedora se usa 'dnf'
+        name: bashtop
+        update_cache: yes
+        state: present
+*********************************************************************************************************************
+ansible-playbookplaybook-usuario.yml -i /etc/ansible/hosts
