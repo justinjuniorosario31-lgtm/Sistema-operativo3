@@ -1,4 +1,4 @@
-VIDEO 1 WEBMIN
+VIDEO 1 WEBMIN  Instalacion de Webmin 
 
 sudo nano /etc/yum.repos.d/webmin.repo
 
@@ -64,9 +64,225 @@ creamos un archivo y un directorio
 le damos click en system
 click en running processes
 
+
+
+***************************************************************VIDEO 2 Desplieque de una VM con terraform en digital Ocean*************************************************
+NO LO SUBI PERO IGUALMENTE TE LO DEJO AQUI <3
+
+terraform
+
+en usuario Sarlos (o sea, no sudo): 
+cd /home/carlos
+ssh-keygen -t rsa -b 4096
+
+
+#_____________________LO DEMAS SI PUEDE IR EN SUDO ____________________________#
+
+dnf install yum-utils -y
+
+sudo nano /etc/yum.repos.d/hashicorp.repo
+
+[hashicorp]
+name=HashiCorp Stable - $basearch
+baseurl=https://rpm.releases.hashicorp.com/fedora/$releasever/$basearch/stable
+enabled=1
+gpgcheck=1
+gpgkey=https://rpm.releases.hashicorp.com/gpg
+
+sudo dnf install -y terraform
+
+terraform -version
+
+sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+
+echo -e "[azure-cli]
+name=Azure CLI
+baseurl=https://packages.microsoft.com/yumrepos/azure-cli
+enabled=1
+gpgcheck=1
+gpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/azure-cli.repo
+
+sudo dnf install -y azure-cli
+
+az login
+
+tu correo
+tu contraseña
+
+haz click en azure cli documentation 
+
+mkdir ~/terraform-azure-vm
+cd ~/terraform-azure-vm
+
+nano main.tf
+
+#########################################################################
+
+#main.tf
+
+#1. Definir el proveedor
+
+
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.110.0"   # última estable
+    }
+  }
+
+  required_version = ">= 1.1.0"
+}
+
+provider "azurerm" {
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+}
+
+# Grupo de recursos
+resource "azurerm_resource_group" "rg" {
+  name     = "TerraFormSOIIIRG"
+  location = "canadacentral"
+}
+
+# Red virtual
+resource "azurerm_virtual_network" "vnet" {
+  name                = "TFSOIIIVnet"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+# Subnet (con dependencia explícita de la VNet)
+resource "azurerm_subnet" "subnet" {
+  name                 = "TFSOIIISubnet"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.1.0/24"]
+
+  depends_on = [azurerm_virtual_network.vnet]
+}
+# Network Security Group
+resource "azurerm_network_security_group" "nsg" {
+  name                = "TFSOIIINSG"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  security_rule {
+    name                       = "SSH"
+    priority                   = 1001
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+}
+
+# Asociar NSG a la Subnet
+resource "azurerm_subnet_network_security_group_association" "subnet_assoc" {
+  subnet_id                 = azurerm_subnet.subnet.id
+  network_security_group_id = azurerm_network_security_group.nsg.id
+}
+
+# IP pública (Standard + Static)
+resource "azurerm_public_ip" "pip" {
+  name                = "TFSOIIIPublicIP"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+}
+
+# NIC con IP pública
+resource "azurerm_network_interface" "nic" {
+  name                = "TFSOIIINIC"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subnet.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.pip.id
+  }
+}
+
+# Máquina virtual Linux
+resource "azurerm_linux_virtual_machine" "vm" {
+  name                = "OS3VM"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  size                = "Standard_B2as_v2"
+  admin_username      = "carlo"
+
+  network_interface_ids = [
+    azurerm_network_interface.nic.id,
+  ]
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts-gen2"
+    version   = "latest"
+  }
+
+  admin_ssh_key {
+    username   = "carlo"
+    public_key = file("/home/carlos/.ssh/id_rsa.pub")
+  }
+}
+
+# Output para mostrar la IP pública
+output "vm_public_ip" {
+  description = "Dirección IP pública de la máquina virtual"
+  value       = azurerm_public_ip.pip.ip_address
+}
+
+##################################################################################
+
+-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.
+cambiar nombres y ubicación de clave publica
+
+# Máquina virtual Linux
+resource "azurerm_linux_virtual_machine" "vm" {
+  name                = "OS3VM"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  size                = "Standard_B2as_v2"
+  admin_username      = "carlo"
+
+admin_ssh_key {
+    username   = "carlo"
+    public_key = file("/home/Carlos/.ssh/id_rsa.pub")
+
+
+-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.
+
+terraform init
+
+terraform validate
+
+terraform plan
+
+terraform apply
+yes
+
+ssh -i /home/carlos/.ssh/id_rsa carlo@4.205.115.21
+
 *******************************************************************************************************************************
 
-VIDEO 3 ANSIBLE
+VIDEO 3 Instalación de ANSIBLE
 (tanto para windows como para Linux, hacer todo en permisos de administrador)
 
 -Fedora:
@@ -152,7 +368,7 @@ ansible win -m win_ping -i /etc/ansible/hosts
 
 
 ***********************************************************************************************************************************************************
-VIDEO 4 AD HOC 
+VIDEO 4 Comandos AD HOC 
 
 Probar que ansible funciona:
 - Fedora:
@@ -169,7 +385,7 @@ ansible win -m win_reboot -i /etc/ansible/hosts
 
 +*+*+*+***++*+**+**+*+*+*+*+********************+*******************************************+******************************************
 
-VIDEO 5 PLAYBOOK
+**********************************************************************VIDEO 5 PLAYBOOK*********************************************************************
 
 Probar que ansible funciona:
 - Fedora:
