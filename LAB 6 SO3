@@ -89,7 +89,7 @@ sudo dnf copr enable nucleo/openssl1.1 -y
 sudo dnf install openssl1.1 -y
 wget https://snort.org/downloads/snort/snort-2.9.20-1.f35.x86_64.rpm
 sudo dnf install ./snort-2.9.20-1.f35.x86_64.rpm
-sudo ln -s /usr/lib64/libdnet.so.1 /usr/lib64/libnet.1
+sudo ln -s /usr/lib64/libdnet.so.1 /usr/lib64/libdnet.1
 sudo ldconfig
 snort --version
 
