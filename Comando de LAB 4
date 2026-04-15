@@ -1,6 +1,4 @@
-=============comando de la practica 1 LAB 4======================= 
-
-Instalar un servidor HTTP apache2/nginx
+=============comando de la practica 1 LAB 4 Instalar un servidor HTTP apache2/nginx======================= 
 
 sudo dnf install httpd -y
 
@@ -59,7 +57,7 @@ sudo nano /etc/httpd/conf/httpd.conf
 sudo systemctl restart httpd
 
 
-=====================Comando de la 2 practica LAB 4================================
+=====================Comando de la 2 practica LAB 4  Instalar un servidor de correos ================================
 
 sudo dnf install postfix* -y && sudo dnf install mail* -y
 
@@ -102,7 +100,7 @@ mail -s "MambruSeFueALaGuerra" os3conadrian@gmail.com << correo.txt
 
 
 
-================ comando de la practica 3 lab 4 =====================
+================ comando de la practica 3 lab 4 Instalar un servidor de Impresion =====================
 
 sudo dnf install cups cups-pdf ghostscript -y
 
