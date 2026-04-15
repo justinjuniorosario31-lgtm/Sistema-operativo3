@@ -30,6 +30,7 @@ systemctl enable vsftpd
 systemctl start vsftpd
 
 telnet 10.0.0.60 21
+Test-NetConnection 10.0.0.106
 ----------------------------------------------
 
 COMPROBAR PUERTO 80 
