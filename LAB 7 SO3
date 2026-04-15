@@ -125,7 +125,7 @@ hostname
 sudo rm /etc/resolv.conf
 
 .-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
-sudo nano /etc/resolv.conf
+/etc/resolv.conf
 nameserver 127.0.0.1
 nameserver 8.8.8.8
 search so3.inet
