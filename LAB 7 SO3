@@ -1,4 +1,4 @@
-Pracica  1
+Pracica  1 compartir archivos entre linux utilizando NFS
 
 sudo dnf install -y nfs-utils  //en las dos 
 sudo systemctl enable enable nfs-server    //en las dos 
@@ -17,7 +17,7 @@ cd ..
 sudo chown -R nobody:nobody OS3/
 sudo chmod -R 777 os3/
 sudo nano /etc/exports
-/home/carlos/Escritorio/os3 10.0.0.0/24(ro,sync,no_subtree_check)
+/home/jrosario/Escritorio/os3 10.0.0.0/24(ro,sync,no_subtree_check)
 sudo exportfs -rav
 sudo exportfs -v
 
@@ -37,7 +37,7 @@ ls ~/Escritorio/SO3
 
 
 ===========================================================================================
-Pracica 2
+Pracica 2 Creacion de fileserver compatible con Windows utilizando SAMBA 
 
 sudo dnf install -y samba* 
 sudo systemctl enable enable smb nmb
@@ -81,10 +81,7 @@ Introduce el usuario zamba y su contraseña cuando se te solicite.
 
 
 
-=========================================practica 3=======================================
-
-
-no lo hice en su momento pero aqui les traigo su samba con mucho cariño :3
+=========================================practica 3 Creacion de controlador de Dominio con cliente Windows =======================================
 
 SAMBA DEFINITIVO
 
