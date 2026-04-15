@@ -1,4 +1,4 @@
-===========================Práctica 1 - Cifrado con GPG2==============================
+===========================Práctica 1 - Cifrado con GPG2  ==============================
 
 -sudo dnf install gnug2 -y
 cd Escritorio/
@@ -19,7 +19,7 @@ ls
 -ls
 -cat confidencial_decifrado.txt
 
-==============================================================Video 2========================================
+====================================================Video 2 IP tables - UFW/Firewall-cmd ========================================
 ---PARTE 1---: IPTABLES
 sudo dnf install iptables iptables-services -y
 sudo systemctl enable --now iptables
@@ -82,7 +82,7 @@ VERIFICAR QUE EL ACCESO ESTA DESBLOQUEADO
 curl http://10.0.0.60: HOLA MUNDO
 ssh carlos@10.0.0.60: deberá de acceder normalmente
 
-==========================VIDEO 3===============================================
+==========================VIDEO 3 Instalacion de IDS snort ===============================================
 sudo dnf install libdnet chkconfig -y
 sudo dnf install wget -y
 sudo dnf copr enable nucleo/openssl1.1 -y
@@ -104,7 +104,7 @@ alert tcp any any -> any 80 (msg:"Detectado trafico hacia el puerto 80/tcp (HTTP
 sudo snort -A console -q -c /etc/snort/rules/local.rules -i ens160
 
 
-=================================VIDEO 4============================================
+=================================VIDEO 4 Configurar 2FA con google authenticator Modulo PAM para Acceso SSH ============================================
 sudo dnf install google-authenticator qrencode -y
 google-authenticator
 colocamos el código que nos pone google
