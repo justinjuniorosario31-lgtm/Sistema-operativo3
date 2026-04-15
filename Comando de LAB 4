@@ -1,5 +1,7 @@
 =============comando de la practica 1 LAB 4======================= 
 
+Instalar un servidor HTTP apache2/nginx
+
 sudo dnf install httpd -y
 
 sudo systemctl enable httpd
