@@ -37,7 +37,7 @@ ls ~/Escritorio/SO3
 
 
 ===========================================================================================
-Pracica 2 Creacion de fileserver compatible con Windows utilizando SAMBA 
+*******************************Pracica 2 Creacion de fileserver compatible con Windows utilizando SAMBA****************************** 
 
 sudo dnf install -y samba* 
 sudo systemctl enable enable smb nmb
