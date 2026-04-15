@@ -1,4 +1,4 @@
-EXP primera practica 
+***********************************Primera practica LAB 5 video 1 Syncronizacion de carpetas con Rsync *******************************
 
 sudo dnf install rsync* -y  //en las dos maquina 
 
@@ -43,7 +43,7 @@ ls
 touch prueba_102.txt
 
 
-=====================================================================practica 2=========================================================================
+=====================================================================practica 2 Instalacion y configuracion del Cluster=========================================================================
 
 -exp segundo ejercisio 
 
@@ -93,7 +93,7 @@ systemctl stop pacemaker // en la segunda
 
 
 
-=========================================================================================practica 3=========================================================
+========================================================practica 3  Cluster de Alta Disponibilidad HTTP =========================================================
 
 sudo dnf install httpd* keepalived*-y   //en los 2 
 
