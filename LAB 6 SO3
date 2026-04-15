@@ -47,6 +47,7 @@ sudo iptables -A INPUT -p tcp --dport 22 -j DROP
 sudo iptables -A INPUT -p tcp --dport 80 -j DROP
 sudo iptables -A INPUT -p tcp --dport 21 -j DROP
 sudo iptables -L -n --line-numbers
+sudo iptables -F  (PARA LIMPIAR LA LISTA)
 sudo iptables -D INPUT 1 (numero de la regla cuando haces el line-numbers)
 sudo iptables -D INPUT 1
 sudo iptables -D INPUT 1
