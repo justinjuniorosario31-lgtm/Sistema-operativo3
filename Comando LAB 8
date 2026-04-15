@@ -1,4 +1,4 @@
-video 1
+video 1 Instalacion y configuracion de Docker
 
 dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine podman runc
 
@@ -64,7 +64,7 @@ docker ps -a
 
 
 
-============================================video 2==============================
+============================================video 2  Instalacion de Portainer==============================
 
 docker volume create portainer_data
 
@@ -112,7 +112,7 @@ verifica
 
 
 
-===========================videoo3=============================================
+================================================videoo3 IDespliegue de contenedor de Wordpress utilizando Docker-Compose=============================================
 
 dnf install -y dnf-plugins-core
 
