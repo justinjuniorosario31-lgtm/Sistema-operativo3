@@ -34,7 +34,7 @@ telnet 10.0.0.60 21
 
 COMPROBAR PUERTO 80 
 Windows:
-curl http://10.0.0.60
+curl http://10.0.0.106:80
 ----------------------------------------------
 
 COMPROBAR PUERTO 22
